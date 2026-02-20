@@ -1,0 +1,124 @@
+# Containers & Ports - Canonical Source of Truth
+# Schema: See docs/architecture/SCHEMAS.md
+# Last Updated: 2026-02-18
+
+systems:
+  - system_id: steller-v2
+    containers:
+      - container_name: steller-v2-api
+        service_name: api
+        type: api
+        host_port: 6091
+        container_port: 8080
+        protocol: http
+        compose_file: /opt/steller-v2/docker-compose.yml
+        compose_project: steller-v2
+        protected: true
+        description: Main API service (.NET 9) with Hangfire job processing
+
+      - container_name: steller-v2-postgres
+        service_name: postgres
+        type: database
+        host_port: 6432
+        container_port: 5432
+        protocol: tcp
+        compose_file: /opt/steller-v2/docker-compose.yml
+        compose_project: steller-v2
+        protected: true
+        description: PostgreSQL database (database: steller_v2, user: steller_v2_user)
+
+      - container_name: steller-v2-redis
+        service_name: redis
+        type: cache
+        host_port: 6379
+        container_port: 6379
+        protocol: tcp
+        compose_file: /opt/steller-v2/docker-compose.yml
+        compose_project: steller-v2
+        protected: true
+        description: Redis cache for session/data caching
+
+  - system_id: steller-legacy
+    containers:
+      - container_name: steller-steller-api-1
+        service_name: steller-api
+        type: api
+        host_port: 5091
+        container_port: null
+        protocol: http
+        compose_file: null
+        compose_project: steller
+        protected: true
+        description: Legacy Steller API (currently stopped but reserved)
+
+      - container_name: stellerconsumer-consumer-api-1
+        service_name: consumer-api
+        type: api
+        host_port: 5092
+        container_port: null
+        protocol: http
+        compose_file: null
+        compose_project: stellerconsumer
+        protected: true
+        description: Legacy Consumer API (currently stopped but reserved)
+
+      - container_name: shared_postgres_db
+        service_name: postgres
+        type: database
+        host_port: 5432
+        container_port: 5432
+        protocol: tcp
+        compose_file: null
+        compose_project: shared
+        protected: true
+        description: Legacy PostgreSQL (database: steller_dB)
+
+      - container_name: shared_rabbitmq
+        service_name: rabbitmq
+        type: queue
+        host_port: 5672
+        container_port: 5672
+        protocol: tcp
+        compose_file: null
+        compose_project: shared
+        protected: true
+        description: Legacy RabbitMQ AMQP
+
+      - container_name: steller-admin-dashboard-vue-app-1
+        service_name: admin-dashboard
+        type: dashboard
+        host_port: 8080
+        container_port: null
+        protocol: http
+        compose_file: null
+        compose_project: steller-admin-dashboard
+        protected: true
+        description: Legacy Admin Dashboard (Vue.js)
+
+      - container_name: steller-consumer-dashboard-vue-app-1
+        service_name: consumer-dashboard
+        type: dashboard
+        host_port: 8081
+        container_port: null
+        protocol: http
+        compose_file: null
+        compose_project: steller-consumer-dashboard
+        protected: true
+        description: Legacy Consumer Dashboard (Vue.js)
+
+# Port Reservation Map (for agent reference)
+# Reserved ports (DO NOT USE for new services):
+# - 5091, 5092: Legacy APIs
+# - 5432: Legacy PostgreSQL
+# - 5672, 15672: Legacy RabbitMQ
+# - 8080, 8081: Legacy Dashboards
+# - 6091: Steller v2 API
+# - 6432: Steller v2 PostgreSQL
+# - 6379: Steller v2 Redis
+# Recommended safe ranges: 8000+, 9000+, 30000+
+
+# Guardrails for Agents
+# CRITICAL: All containers marked protected=true MUST NOT be stopped, restarted, or modified without explicit user request
+# - Do not run: docker stop, docker restart, docker rm on protected containers
+# - Do not modify compose files or .env files for protected systems
+# - Read-only operations (docker logs, docker inspect) are safe when user explicitly requests

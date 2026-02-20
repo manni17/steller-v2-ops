@@ -1,0 +1,104 @@
+services:
+  steller-api:
+    build:
+      context: ./steller-backend
+      dockerfile: Dockerfile.production
+    image: steller-v2-api:latest
+    container_name: steller-v2-api
+    restart: unless-stopped
+    ports:
+      - "6091:8080"
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - DB_HOST=steller-v2-postgres
+      - DB_PORT=5432
+    volumes:
+      - ./Logs:/app/Logs
+    networks:
+      - steller-v2-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: steller-v2-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-steller_v2}
+      POSTGRES_USER: ${DB_USERNAME:-steller_v2_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    ports:
+      - "127.0.0.1:6432:5432"
+    volumes:
+      - steller_v2_postgres_data:/var/lib/postgresql/data
+    networks:
+      - steller-v2-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-steller_v2_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: steller-v2-redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - steller_v2_redis_data:/data
+    networks:
+      - steller-v2-network
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  steller-migrations:
+    build:
+      context: ./steller-backend
+      dockerfile: Dockerfile.migrations
+    container_name: steller-v2-migrations
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DB_HOST=steller-v2-postgres
+      - DB_PORT=5432
+    networks:
+      - steller-v2-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - tools
+
+networks:
+  steller-v2-network:
+    driver: bridge
+
+volumes:
+  steller_v2_postgres_data:
+    driver: local
+  steller_v2_redis_data:
+    driver: local

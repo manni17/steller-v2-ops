@@ -1,0 +1,26 @@
+# Atlas Index - Component Catalog Entry Point
+# Purpose: Lists all atlas files and what they describe
+# Last Updated: 2026-02-18
+
+atlas_files:
+  components:
+    path: docs/architecture/atlas/components.yaml
+    description: Catalog of all components (APIs, databases, caches, job processors) with their system ownership and metadata
+    schema: See docs/architecture/SCHEMAS.md (atlas/components.yaml)
+
+  apis:
+    path: docs/architecture/atlas/apis.yaml
+    description: API surface definitions - endpoints, auth methods, and guardrails
+    schema: See docs/architecture/SCHEMAS.md (atlas/apis.yaml)
+
+  dependencies:
+    path: docs/architecture/atlas/dependencies.yaml
+    description: Component dependency graph - which components depend on which others
+    schema: See docs/architecture/SCHEMAS.md (atlas/dependencies.yaml)
+
+# Usage for Agents
+# 1. Start here to understand what atlas files exist
+# 2. Load components.yaml for "what exists"
+# 3. Load apis.yaml for "how to call APIs"
+# 4. Load dependencies.yaml for "what depends on what"
+# 5. All component_id references must exist in components.yaml

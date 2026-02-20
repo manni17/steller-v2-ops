@@ -1,0 +1,8 @@
+# Override: run Steller v2 API on host port 8080 (Option C — unplug legacy, no Nginx change).
+# Usage: docker compose -f docker-compose.yml -f docker-compose.port8080.yml up -d
+# Ensure legacy Steller is stopped first (e.g. cd /opt/steller && docker compose down).
+
+services:
+  steller-api:
+    ports:
+      - "8080:8080"

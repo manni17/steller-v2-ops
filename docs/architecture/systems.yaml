@@ -1,0 +1,50 @@
+# System Context - Canonical Source of Truth
+# Schema: See docs/architecture/SCHEMAS.md
+# Last Updated: 2026-02-18
+
+systems:
+  - system_id: steller-v2
+    name: Steller v2 Platform
+    status: production
+    protected: true
+    description: New Steller platform (.NET 9 + PostgreSQL + Redis + Hangfire) running in isolated Docker stack
+    boundaries:
+      external_actors:
+        - Partners (via Partner API)
+        - Admins (via Admin API)
+        - QA Agents (via API testing)
+      integrations:
+        - Bamboo (external vendor API for gift card orders)
+    location: /opt/steller-v2/
+    compose_file: /opt/steller-v2/docker-compose.yml
+
+  - system_id: steller-legacy
+    name: Legacy Steller Platform
+    status: production
+    protected: true
+    description: Legacy Steller system (older stack) running alongside v2 on same VPS
+    boundaries:
+      external_actors:
+        - Partners (via Legacy API)
+        - Admins (via Admin Dashboard)
+      integrations: []
+    location: /opt/steller/
+    compose_file: null  # Multiple compose files in subdirectories
+
+  - system_id: bamboo
+    name: Bamboo Vendor API
+    status: external
+    protected: false
+    description: External vendor API for placing gift card orders
+    boundaries:
+      external_actors: []
+      integrations:
+        - steller-v2 (via Bamboo client)
+    location: null
+    compose_file: null
+
+# Guardrails for Agents
+# CRITICAL: Systems marked protected=true MUST NOT be modified without explicit user request
+# - steller-v2: Do not restart containers, modify .env, or change compose file
+# - steller-legacy: Do not touch any files, containers, or configurations
+# - bamboo: External system; no direct modification possible

@@ -1,0 +1,176 @@
+# Component Catalog - Canonical Source of Truth
+# Schema: See docs/architecture/SCHEMAS.md
+# Last Updated: 2026-02-18
+
+components:
+  - component_id: steller-v2-api
+    name: Steller v2 API
+    system_id: steller-v2
+    type: api
+    description: Main API service (.NET 9) handling Partner API, Admin API, and order processing
+    doc_path: docs/architecture/atlas/apis.yaml
+    code_path: null  # To be filled if source code location is known
+    technology: ".NET 9"
+    features:
+      - Partner API (catalog, orders)
+      - Admin API (partner management, API key management)
+      - Hangfire job processing (embedded in API process)
+
+  - component_id: steller-v2-hangfire
+    name: Hangfire Job Processor
+    system_id: steller-v2
+    type: job-processor
+    description: Background job processor for order placement (runs inside API process, not separate container)
+    doc_path: docs/architecture/blueprints/data-flow.md
+    code_path: null
+    technology: "Hangfire"
+    note: "Not a separate container - runs inside steller-v2-api process"
+
+  - component_id: steller-v2-postgres
+    name: Steller v2 PostgreSQL Database
+    system_id: steller-v2
+    type: database
+    description: PostgreSQL database storing orders, partners, products, API keys, and other business data
+    doc_path: docs/architecture/blueprints/data-flow.md
+    code_path: null
+    technology: "PostgreSQL"
+    database_name: steller_v2
+    database_user: steller_v2_user
+
+  - component_id: steller-v2-redis
+    name: Steller v2 Redis Cache
+    system_id: steller-v2
+    type: cache
+    description: Redis cache for session data, rate limiting, and analytics request log queue (list)
+    doc_path: null
+    code_path: null
+    technology: "Redis"
+
+  - component_id: steller-v2-analytics-middleware
+    name: API Request Analytics Middleware
+    system_id: steller-v2
+    type: middleware
+    description: Logs each API request to Redis list (fire-and-forget); does not write to PostgreSQL
+    doc_path: docs/architecture/decisions/adr-005-api-request-logging.md
+    code_path: Steller.Api/Middelwares/AnalyticsMiddleware.cs
+    technology: ".NET 9"
+
+  - component_id: steller-v2-onboarding-service
+    name: Partner Onboarding Service
+    system_id: steller-v2
+    type: service
+    description: Self-service partner signup (POST /api/public/signup), API key generation; partner linked to sandbox with fake USD only (no real-money trial)
+    doc_path: docs/architecture/atlas/apis.yaml
+    code_path: Steller.Infrastructure/Services/Onboarding/PartnerOnboardingService.cs
+    technology: ".NET 9"
+
+  - component_id: steller-v2-partner-stats-service
+    name: Partner Stats Service
+    system_id: steller-v2
+    type: service
+    description: Aggregates partner usage and order stats (GET /api/partner/stats) from Orders and ApiRequestLogs
+
+  - component_id: steller-v2-webhook-service
+    name: Webhook Service
+    system_id: steller-v2
+    type: service
+    description: Sends order status notifications to partner webhook URL (HMAC signature). Partner config via GET/PUT /api/partner/webhook.
+
+  - component_id: steller-v2-referral-service
+    name: Referral Service
+    system_id: steller-v2
+    type: service
+    description: Referral codes, tracking (Referrals table), signup with optional referralCode, GET /api/partner/referral-code and /referrals
+
+  - component_id: steller-v2-re-engagement-job
+    name: Re-engagement Job
+    system_id: steller-v2
+    type: job-processor
+    description: Hangfire job identifying partners with no API activity in last 30 days (daily)
+
+  - component_id: bamboo-client
+    name: Bamboo Vendor Client
+    system_id: steller-v2
+    type: client
+    description: Client library for integrating with Bamboo vendor API (external service)
+    doc_path: docs/bamboo_doc_extract/README.md
+    code_path: null
+    technology: ".NET Standard Library"
+    note: "External integration - Bamboo is not part of Steller v2 system"
+
+  - component_id: legacy-api
+    name: Legacy Steller API
+    system_id: steller-legacy
+    type: api
+    description: Legacy Steller API (older stack, currently stopped but reserved)
+    doc_path: null
+    code_path: null
+    technology: "Legacy Stack"
+    protected: true
+
+  - component_id: legacy-consumer-api
+    name: Legacy Consumer API
+    system_id: steller-legacy
+    type: api
+    description: Legacy Consumer API (currently stopped but reserved)
+    doc_path: null
+    code_path: null
+    technology: "Legacy Stack"
+    protected: true
+
+  - component_id: legacy-postgres
+    name: Legacy PostgreSQL Database
+    system_id: steller-legacy
+    type: database
+    description: Legacy PostgreSQL database (shared_postgres_db container)
+    doc_path: null
+    code_path: null
+    technology: "PostgreSQL"
+    database_name: steller_dB
+    protected: true
+
+  - component_id: legacy-rabbitmq
+    name: Legacy RabbitMQ
+    system_id: steller-legacy
+    type: queue
+    description: Legacy RabbitMQ message queue
+    doc_path: null
+    code_path: null
+    technology: "RabbitMQ"
+    protected: true
+
+  - component_id: legacy-admin-dashboard
+    name: Legacy Admin Dashboard
+    system_id: steller-legacy
+    type: dashboard
+    description: Legacy Admin Dashboard (Vue.js)
+    doc_path: null
+    code_path: null
+    technology: "Vue.js"
+    protected: true
+
+  - component_id: legacy-consumer-dashboard
+    name: Legacy Consumer Dashboard
+    system_id: steller-legacy
+    type: dashboard
+    description: Legacy Consumer Dashboard (Vue.js)
+    doc_path: null
+    code_path: null
+    technology: "Vue.js"
+    protected: true
+
+  - component_id: bamboo-api
+    name: Bamboo Vendor API
+    system_id: bamboo
+    type: api
+    description: External vendor API for placing gift card orders (not owned by Steller)
+    doc_path: docs/bamboo_doc_extract/README.md
+    code_path: null
+    technology: "External API"
+    note: "External system - no direct control"
+
+# Guardrails for Agents
+# Components marked protected=true belong to protected systems and MUST NOT be modified
+# - All steller-legacy components are protected
+# - All steller-v2 components are protected (production system)
+# - bamboo-api is external and cannot be modified

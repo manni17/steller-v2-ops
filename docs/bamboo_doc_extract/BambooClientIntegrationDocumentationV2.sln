@@ -1,0 +1,27 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BambooClientIntegrationDocumentationV2.Standard", "BambooClientIntegrationDocumentationV2.Standard/BambooClientIntegrationDocumentationV2.Standard.csproj", "{7d8745f9-6c1f-4ffc-84bc-5ac2adbfffbd}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BambooClientIntegrationDocumentationV2.Tests", "BambooClientIntegrationDocumentationV2.Tests/BambooClientIntegrationDocumentationV2.Tests.csproj", "{f62a4721-1e17-4939-8639-79cef6ee3ac0}"
+EndProject
+Global
+    GlobalSection(SolutionConfigurationPlatforms) = preSolution
+        Debug|Any CPU = Debug|Any CPU
+        Release|Any CPU = Release|Any CPU
+    EndGlobalSection
+    GlobalSection(ProjectConfigurationPlatforms) = postSolution
+        {7d8745f9-6c1f-4ffc-84bc-5ac2adbfffbd}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {7d8745f9-6c1f-4ffc-84bc-5ac2adbfffbd}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {7d8745f9-6c1f-4ffc-84bc-5ac2adbfffbd}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {7d8745f9-6c1f-4ffc-84bc-5ac2adbfffbd}.Release|Any CPU.Build.0 = Release|Any CPU
+        {f62a4721-1e17-4939-8639-79cef6ee3ac0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {f62a4721-1e17-4939-8639-79cef6ee3ac0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {f62a4721-1e17-4939-8639-79cef6ee3ac0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {f62a4721-1e17-4939-8639-79cef6ee3ac0}.Release|Any CPU.Build.0 = Release|Any CPU
+    EndGlobalSection
+    GlobalSection(SolutionProperties) = preSolution
+        HideSolutionNode = FALSE
+    EndGlobalSection
+EndGlobal

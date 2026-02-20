@@ -1,0 +1,299 @@
+# API Surface Definitions - Canonical Source of Truth
+# Schema: See docs/architecture/SCHEMAS.md
+# Last Updated: 2026-02-19
+# Source: Extracted from /opt/steller-v2/steller-backend/Steller.Api/Controllers
+
+apis:
+  - api_id: steller-v2-partner-api
+    name: Steller v2 Partner API
+    system_id: steller-v2
+    base_path: /api
+    auth_method: x-api-key
+    description: API for partners to access catalog and place orders. ApiKeyMiddleware validates x-api-key and sets PartnerId claims.
+    endpoints:
+      - path: /api/brand/getCatalog
+        method: GET
+        auth_required: true
+        description: Get partner-specific product catalog (filtered by PartnerId from claims)
+        auth_note: "Requires x-api-key header. Returns 401 without it."
+
+      - path: /api/orders
+        method: POST
+        auth_required: true
+        description: Create a new order. Returns 202 Accepted. Order is enqueued to PlaceBambooOrderJob immediately after DB commit.
+        request_body:
+          required_fields:
+            - sku
+            - faceValue
+            - quantity
+          optional_fields:
+            - referenceId
+            - expectedTotal
+        auth_note: "Requires x-api-key header. Uses same auth as catalog endpoint."
+        idempotency: "referenceId field provides idempotency (stored as RequestId in DB)"
+
+      - path: /api/orders/{orderId}
+        method: GET
+        auth_required: true
+        description: Get order by ID for the authenticated partner
+        auth_note: "Requires x-api-key header. Returns cards (decrypted PINs) for completed orders."
+
+      - path: /api/partner/stats
+        method: GET
+        auth_required: true
+        description: Partner usage and order stats (totalOrders, successfulOrders, successRate, apiCallsLast30Days, errorResponsesLast30Days, averageOrderValue)
+        auth_note: "Requires x-api-key or JWT (Partner/Admin)."
+
+      - path: /api/partner/logs
+        method: GET
+        auth_required: true
+        description: Partner log explorer — request history with filters (statusCode, path, dateFrom, dateTo). Paginated. Finance role cannot access.
+        auth_note: "Requires x-api-key or JWT (Partner with Developer role or Admin)."
+
+      - path: /api/partner/webhook
+        method: GET
+        auth_required: true
+        description: Get webhook config (URL and hasSecret; secret not returned)
+
+      - path: /api/partner/webhook
+        method: PUT
+        auth_required: true
+        description: Update webhook URL and optional secret for order status notifications
+        request_body:
+          optional_fields:
+            - webhookUrl
+            - webhookSecret
+
+      - path: /api/partner/referral-code
+        method: GET
+        auth_required: true
+        description: Get or generate referral code for the current partner (e.g. REF-123)
+
+      - path: /api/partner/referrals
+        method: GET
+        auth_required: true
+        description: List referrals made by the current partner (referredPartnerId, status, createdAt)
+
+    guardrails:
+      - "API keys are stored as KeyHash (HMAC-SHA256) in ApiClientSecrets table"
+      - "NEVER query for plain API key - it does not exist in database"
+      - "Plain API key is only returned once when created via Admin API"
+      - "Use pre-provisioned API key from secure store or obtain via Admin API"
+      - "Do not run: SELECT \"ApiKey\" FROM \"Partners\" - no such column exists"
+
+  - api_id: steller-v2-admin-api
+    name: Steller v2 Admin API
+    system_id: steller-v2
+    base_path: /api/admin
+    auth_method: jwt
+    description: API for administrators. Requires JWT Bearer token. ApiKeyMiddleware skips /api/admin; JWT Admin users can bypass x-api-key on partner routes.
+    endpoints:
+      - path: /api/admin/partners/{partnerId}/keys
+        method: POST
+        auth_required: true
+        description: Create API key for a partner. Previous active keys are revoked. Optional body: { allowedIpAddresses } (JSON array or comma-separated IPs/CIDR). Returns plain key once - store securely.
+        auth_note: "Requires Authorization: Bearer <access_token>, Role Admin"
+
+      - path: /api/admin/partners/{partnerId}/keys
+        method: GET
+        auth_required: true
+        description: List API keys for a partner (hashed previews only, never plain keys)
+
+      - path: /api/admin/partners/{partnerId}/keys/{keyId}
+        method: DELETE
+        auth_required: true
+        description: Revoke a specific API key by ID
+
+      - path: /api/admin/partners/{partnerId}/discounts
+        method: GET
+        auth_required: true
+        description: List partner discounts (Admin JWT)
+
+      - path: /api/admin/partners/{partnerId}/discounts
+        method: POST
+        auth_required: true
+        description: Create or replace partner discount (Admin JWT)
+
+      - path: /api/admin/orders/{orderId}/cancel
+        method: POST
+        auth_required: true
+        description: Admin cancel order (Admin JWT)
+
+      - path: /api/admin/orders/{orderId}/refund
+        method: POST
+        auth_required: true
+        description: Admin refund order (Admin JWT)
+
+      - path: /api/admin/orders/{orderId}/mark-failed-and-refund
+        method: POST
+        auth_required: true
+        description: Admin mark order failed and refund (Admin JWT)
+
+      - path: /api/admin/metrics/growth
+        method: GET
+        auth_required: true
+        description: "[PLANNED] Admin growth metrics for dashboard — signups, activations, revenue (date range). See docs/architecture/blueprints/dashboards-prep.md"
+        auth_note: "Requires Authorization: Bearer <access_token>, Role Admin"
+
+    guardrails:
+      - "Admin endpoints require JWT authentication (not x-api-key)"
+      - "API keys created via Admin API should be stored securely - only returned once"
+
+  - api_id: steller-v2-auth
+    name: Steller v2 Auth API
+    system_id: steller-v2
+    base_path: /api/auth
+    auth_method: none
+    description: Auth endpoints. ApiKeyMiddleware skips /api/auth. JWT-based auth for Admin/Partner users.
+    endpoints:
+      - path: /api/auth/login
+        method: POST
+        auth_required: false
+        description: Admin/Partner login (returns JWT access and refresh tokens)
+
+      - path: /api/auth/refresh
+        method: POST
+        auth_required: false
+        description: Refresh access token using refresh token
+
+      - path: /api/auth/revoke
+        method: POST
+        auth_required: true
+        description: Revoke refresh token (requires JWT)
+
+      - path: /api/auth/register-user
+        method: POST
+        auth_required: true
+        description: Register partner user (requires JWT, Roles Partner or Admin, PartnerId in claims)
+
+  - api_id: steller-v2-brand-public
+    name: Steller v2 Brand Public/Sync Endpoints
+    system_id: steller-v2
+    base_path: /api/brand
+    auth_method: mixed
+    description: Brand endpoints. ApiKeyMiddleware skips /api/brand/sync-catalog. Admin JWT can bypass x-api-key.
+    endpoints:
+      - path: /api/brand/sync-catalog
+        method: POST
+        auth_required: false
+        description: Manual catalog sync from Bamboo. [AllowAnonymous]. ApiKeyMiddleware skips this path.
+        auth_note: "No auth required - used for manual sync triggers"
+
+      - path: /api/brand/getBrandsFromBambo
+        method: GET
+        auth_required: true
+        description: Fetch brands from Bamboo external API and add to DB. [Authorize] - JWT or x-api-key
+
+      - path: /api/brand/getBrand/{id}
+        method: GET
+        auth_required: true
+        description: Get brand by ID
+
+      - path: /api/brand
+        method: GET
+        auth_required: true
+        description: Paginated brand catalog list
+
+      - path: /api/brand/export
+        method: GET
+        auth_required: true
+        description: Export products to Excel (AED). [AllowAnonymous] on export in some implementations
+
+      - path: /api/brand/getBrandExcel
+        method: GET
+        auth_required: false
+        description: Export products to Excel. [AllowAnonymous]
+
+  - api_id: steller-v2-wallet-admin
+    name: Steller v2 Wallet Admin API
+    system_id: steller-v2
+    base_path: /api/wallet
+    auth_method: jwt
+    description: Admin-only wallet operations. Credit/Debit partner wallets.
+    endpoints:
+      - path: /api/wallet/{partnerId}
+        method: GET
+        auth_required: true
+        description: Get wallet balance (Admin JWT)
+
+      - path: /api/wallet/{partnerId}/credit
+        method: POST
+        auth_required: true
+        description: Credit partner wallet (Admin JWT)
+
+      - path: /api/wallet/{partnerId}/debit
+        method: POST
+        auth_required: true
+        description: Debit partner wallet (Admin JWT)
+
+  - api_id: steller-v2-public-api
+    name: Steller v2 Public API
+    system_id: steller-v2
+    base_path: /api/public
+    auth_method: none
+    description: Public endpoints. ApiKeyMiddleware skips /api/public.
+    endpoints:
+      - path: /api/public/signup
+        method: POST
+        auth_required: false
+        description: Self-service partner registration. Returns partnerId, apiKey (once), walletBalance, message.
+        request_body:
+          required_fields:
+            - companyName
+            - email
+          optional_fields:
+            - useCase
+        response: "201 Created — partnerId, apiKey, walletBalance, currencyCode, message"
+        request_body:
+          optional_fields:
+            - referralCode
+
+  - api_id: steller-v2-health
+    name: Steller v2 Health Check
+    system_id: steller-v2
+    base_path: /api
+    auth_method: none
+    description: Health check endpoint. ApiKeyMiddleware skips /api/health.
+    endpoints:
+      - path: /api/health
+        method: GET
+        auth_required: false
+        description: Health check endpoint
+
+  - api_id: bamboo-vendor-api
+    name: Bamboo Vendor API
+    system_id: bamboo
+    base_path: null
+    auth_method: basic
+    description: External vendor API. IVendorAdapter/IBambooApiClient call Bamboo for orders and catalog. Used by PlaceBambooOrderJob and SyncCatalogFromBamboo.
+    endpoints:
+      - path: /api/integration/v2.0/orders/checkout
+        method: POST
+        auth_required: true
+        description: Place order with Bamboo (IVendorAdapter.PlaceOrderAsync)
+        auth_note: "Basic Authentication (configured in Steller v2)"
+
+      - path: /api/integration/v1.0/orders/{id}
+        method: GET
+        auth_required: true
+        description: Get order status (PollBambooOrderJob)
+        auth_note: "Basic Authentication"
+
+      - path: /api/integration/v1.0/catalog
+        method: GET
+        auth_required: true
+        description: Catalog sync (ExternalApiService BaseUrlV1 + /catalog; BrandBackgroundService, SyncCatalogFromBamboo)
+        auth_note: "External API; Bamboo username/password auth"
+    guardrails:
+      - "External API - no direct access from agents"
+      - "Circuit breaker pattern implemented - may be open if vendor unavailable"
+      - "Order failures due to circuit breaker are expected behavior (not Steller v2 bugs)"
+
+# Auth Model Summary
+# - Partner API (/api/brand/getCatalog, /api/orders): x-api-key required (ApiKeyMiddleware)
+# - Admin API (/api/admin/*): JWT Bearer required, Role Admin
+# - Auth (/api/auth/login, refresh): AllowAnonymous
+# - Auth (/api/auth/revoke, register-user): JWT required
+# - Health (/api/health), /api/brand/sync-catalog, /api/brand/getBrandExcel: No auth
+# - ApiKeyMiddleware skips: /api/auth, /api/admin, /api/health, /api/public, /api/brand/sync-catalog
+# - JWT Admin users bypass x-api-key for other /api routes

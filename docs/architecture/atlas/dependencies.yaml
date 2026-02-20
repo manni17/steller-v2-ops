@@ -1,0 +1,84 @@
+# Component Dependencies - Canonical Source of Truth
+# Schema: See docs/architecture/SCHEMAS.md
+# Last Updated: 2026-02-18
+
+dependencies:
+  # Steller v2 API dependencies
+  - from_component_id: steller-v2-api
+    to_component_id: steller-v2-postgres
+    dependency_type: database
+    description: API stores and retrieves orders, partners, products, API keys from PostgreSQL
+
+  - from_component_id: steller-v2-api
+    to_component_id: steller-v2-redis
+    dependency_type: cache
+    description: API uses Redis for rate limiting and analytics request log queue (IApiRequestLogQueue)
+
+  - from_component_id: steller-v2-onboarding-service
+    to_component_id: steller-v2-postgres
+    dependency_type: database
+    description: Onboarding creates Partner and uses WalletService for wallet init (no real-money trial; sandbox has fake USD only)
+
+  - from_component_id: steller-v2-hangfire
+    to_component_id: steller-v2-api
+    dependency_type: embedded
+    description: Hangfire runs inside API process (not separate container)
+
+  - from_component_id: steller-v2-hangfire
+    to_component_id: steller-v2-postgres
+    dependency_type: database
+    description: Hangfire jobs read/write order data from PostgreSQL
+
+  - from_component_id: steller-v2-hangfire
+    to_component_id: bamboo-client
+    dependency_type: api
+    description: Hangfire jobs use Bamboo client to place orders with vendor
+
+  - from_component_id: bamboo-client
+    to_component_id: bamboo-api
+    dependency_type: external-service
+    description: Bamboo client calls external Bamboo vendor API
+
+  - from_component_id: steller-v2-partner-stats-service
+    to_component_id: steller-v2-postgres
+    dependency_type: database
+    description: Reads Orders and ApiRequestLogs for partner stats
+
+  - from_component_id: steller-v2-webhook-service
+    to_component_id: steller-v2-postgres
+    dependency_type: database
+    description: Reads Partner.WebhookUrl/WebhookSecret; SendWebhookJob enqueued from PollBambooOrderJob
+
+  - from_component_id: steller-v2-referral-service
+    to_component_id: steller-v2-postgres
+    dependency_type: database
+    description: Referrals table; Partner.ReferralCode, ReferredByPartnerId; signup accepts referralCode
+
+  - from_component_id: steller-v2-re-engagement-job
+    to_component_id: steller-v2-postgres
+    dependency_type: database
+    description: Reads ApiRequestLogs and Partners to identify inactive partners (daily job)
+
+  # Legacy system dependencies (documented for awareness, not modification)
+  - from_component_id: legacy-api
+    to_component_id: legacy-postgres
+    dependency_type: database
+    description: Legacy API uses legacy PostgreSQL (documented for awareness only)
+
+  - from_component_id: legacy-api
+    to_component_id: legacy-rabbitmq
+    dependency_type: queue
+    description: Legacy API uses RabbitMQ (documented for awareness only)
+
+# Dependency Graph Summary
+# steller-v2-api → steller-v2-postgres (database)
+# steller-v2-api → steller-v2-redis (cache)
+# steller-v2-hangfire → steller-v2-api (embedded)
+# steller-v2-hangfire → steller-v2-postgres (database)
+# steller-v2-hangfire → bamboo-client → bamboo-api (external)
+
+# Impact Analysis Guide for Agents
+# - Changes to steller-v2-postgres affect: steller-v2-api, steller-v2-hangfire
+# - Changes to steller-v2-redis affect: steller-v2-api
+# - Changes to bamboo-api affect: bamboo-client → steller-v2-hangfire → steller-v2-api
+# - All legacy components are isolated - no dependencies from v2 to legacy

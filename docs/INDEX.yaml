@@ -1,0 +1,231 @@
+# Documentation Index & Governance Map
+# Purpose: Single entry point for Agents/Humans to locate (Read) and contribute (Write) knowledge.
+# Last Updated: 2026-02-17
+
+# -----------------------------------------------------------------------------
+# Start: Pick your role in the "roles:" section below. Load that role's "docs:" list first.
+# Then use "canonical_sources" and "write_to" for reads and writes. Use "zones" for write targets.
+# -----------------------------------------------------------------------------
+# Verification Rule for Agents
+# Before any "Write" action:
+# 1. Consult docs/INDEX.yaml -> zones
+# 2. Match the task type to the write_when trigger
+# 3. Target the designated path
+# 4. Update the relevant role's read list in INDEX.yaml if the new document is a persistent reference
+# -----------------------------------------------------------------------------
+
+# Writing Convention: New documents in docs/ root must use a prefix (e.g. ADR_, INCIDENT_, PROPOSAL_, AUDIT_, REPORT_). Prefer subfolders when a zone path exists.
+
+zones:
+  architecture:
+    path: docs/architecture/
+    read_when: "Touching systems, APIs, deployment, or security logic."
+    write_when: "Changing system design, adding components, or recording ADRs."
+
+  protocols:
+    path: "docs/ or docs/protocols/"
+    read_when: "Executing standardized procedures (QA runs, TPM audits)."
+    write_when: "Creating or versioning a repeatable process."
+
+  integration:
+    path: "docs/architecture/blueprints/ or docs/integration/"
+    read_when: "Modifying Bamboo client, catalog sync, or vendor contracts."
+    write_when: "Defining external API contracts or parity checklists."
+
+  operations:
+    path: "docs/runbooks/ or docs/incidents/"
+    read_when: "Handling 429 errors, recovery, or researching past failures."
+    write_when: "Documenting recovery steps or closing postmortems."
+
+  planning:
+    path: .cursor/plans/
+    read_when: "Executing active feature or deployment roadmaps."
+    write_when: "Drafting new initiatives or updating progress states."
+
+roles:
+  qa:
+    description: QA Agent - Execute grey box end-to-end tests
+    docs:
+      - docs/STELLER_QA_AGENT_PROTOCOL_V2.md
+      - docs/QA_WORKFLOW_DOCUMENTATION_INDEX.md
+      - docs/qa/USER_FLOW_INTEGRATION_TEST_PLAN.md
+      - docs/RUNNING_API_TESTS.md
+      - docs/BACKLOG_V2.md
+      - docs/product/PRD_STELLER_V2_STABILIZATION_AND_GROWTH.md
+      - docs/architecture/systems.yaml
+      - docs/architecture/containers.yaml
+      - docs/architecture/atlas/apis.yaml
+      - docs/architecture/blueprints/security-auth.md
+    canonical_sources:
+      - "System boundaries: docs/architecture/systems.yaml"
+      - "Containers and ports: docs/architecture/containers.yaml"
+      - "API contracts: docs/architecture/atlas/apis.yaml"
+    write_to: docs/qa/ for run reports; docs/ for protocol updates (prefix PROTOCOL_ or keep STELLER_QA_*).
+
+  vps_navigation:
+    description: VPS Navigation Agent - Set up and operate services on VPS
+    docs:
+      - docs/RUN_MIGRATIONS.md
+      - .cursor/rules/claw-vps-navigation.md
+      - .cursor/rules/claw-quick-reference.md
+      - docs/architecture/systems.yaml
+      - docs/architecture/containers.yaml
+    canonical_sources:
+      - "System boundaries: docs/architecture/systems.yaml"
+      - "Containers and ports: docs/architecture/containers.yaml"
+    write_to: .cursor/rules/ for new navigation/quick-ref rules.
+
+  architecture:
+    description: Architecture understanding - System structure and boundaries
+    docs:
+      - docs/architecture/systems.yaml
+      - docs/architecture/containers.yaml
+      - docs/architecture/atlas/INDEX.yaml
+      - docs/architecture/atlas/components.yaml
+      - docs/architecture/atlas/apis.yaml
+      - docs/architecture/atlas/dependencies.yaml
+      - docs/architecture/SCHEMAS.md
+    write_to: docs/architecture/ (systems, containers, atlas, blueprints, decisions/adr-*.md).
+
+  deploy:
+    description: Deployment - How systems are deployed and configured
+    docs:
+      - docs/RUN_MIGRATIONS.md
+      - docs/architecture/blueprints/deployment.md
+      - docs/architecture/blueprints/data-flow.md
+      - docs/architecture/blueprints/dashboards-prep.md
+      - docs/architecture/containers.yaml
+      - docs/architecture/decisions/adr-*.md
+    canonical_sources:
+      - "DB migrations: docs/RUN_MIGRATIONS.md — use Docker: docker compose --profile tools run --rm steller-migrations. Do not run dotnet ef from host."
+    write_to: docs/architecture/blueprints/ or docs/architecture/decisions/.
+
+  security:
+    description: Security and authentication - Auth models and guardrails
+    docs:
+      - docs/architecture/blueprints/security-auth.md
+      - docs/architecture/atlas/apis.yaml
+      - docs/architecture/decisions/adr-*.md
+    write_to: docs/architecture/blueprints/security-auth.md or docs/architecture/decisions/.
+
+  decisions:
+    description: Architecture decisions - Why choices were made
+    docs:
+      - docs/architecture/decisions/adr-*.md
+    write_to: docs/architecture/decisions/ (adr-XXX-short-name.md).
+
+  glossary:
+    description: Terminology and definitions
+    docs:
+      - docs/glossary.md
+    write_to: docs/glossary.md
+
+  tpm:
+    description: TPM Agent - Orchestrate migration, enforce doc alignment, anti-drift, phase tracking.
+    docs:
+      - docs/TPM_AGENT_PROTOCOL.md
+      - docs/PLG_EXECUTION_PLAN.md
+      - docs/BACKLOG_V2.md
+      - docs/product/PRD_STELLER_V2_STABILIZATION_AND_GROWTH.md
+      - docs/INDEX.yaml
+      - docs/architecture/systems.yaml
+      - docs/architecture/containers.yaml
+      - docs/architecture/atlas/apis.yaml
+      - docs/architecture/blueprints/data-flow.md
+    write_to: docs/BACKLOG_V2.md for phase and backlog updates; docs/architecture/ for YAML changes.
+
+  tpm_stabilization:
+    description: Audit, forensic reporting, and stabilization strategy. Sub-protocol of tpm.
+    docs:
+      - docs/TPM_AGENT_PROTOCOL.md
+      - docs/TPM_STABILIZATION_AUDIT_PROTOCOL.md
+      - docs/incidents/FORENSIC_AUDIT_REPORT_20260218.md
+      - docs/architecture/systems.yaml
+      - docs/architecture/containers.yaml
+      - docs/architecture/atlas/apis.yaml
+      - docs/architecture/blueprints/data-flow.md
+    canonical_sources:
+      - "Ports and containers: docs/architecture/containers.yaml"
+      - "System boundaries: docs/architecture/systems.yaml"
+    write_to: "docs/ (Use prefix AUDIT_ or REPORT_); audits/reports may go in docs/incidents/."
+
+  integration_engineer:
+    description: External vendor parity and sync logic. Bamboo: see BAMBOO_MIGRATION_CONTRACT.md.
+    read:
+      - docs/integration/BAMBOO_MIGRATION_CONTRACT.md
+      - docs/bamboo_doc_extract/
+      - docs/CATALOG_SYNC_LEGACY_VS_V2_INVESTIGATION.md
+      - docs/BAMBOO_ONE_CUSTOMER_AND_SANDBOX_SOURCES.md
+    docs:
+      - docs/integration/BAMBOO_MIGRATION_CONTRACT.md
+      - docs/CATALOG_SYNC_LEGACY_VS_V2_INVESTIGATION.md
+      - docs/BAMBOO_ONE_CUSTOMER_AND_SANDBOX_SOURCES.md
+      - docs/bamboo_doc_extract/
+    write_to: "docs/integration/ (create if missing) or docs/architecture/blueprints/"
+
+  qa_lead:
+    description: Validation strategy and execution reports.
+    read:
+      - docs/STELLER_V2_QA_PLAN.md
+      - docs/qa/
+    docs:
+      - docs/STELLER_QA_AGENT_PROTOCOL_V2.md
+      - docs/STELLER_V2_QA_PLAN.md
+      - docs/STELLER_V2_QMS_PLAN.md
+      - docs/qa/
+    write_to: "docs/qa/ for run reports; docs/ for protocol updates."
+
+  product_strategy:
+    description: Proposals and high-level project direction.
+    read:
+      - docs/product/
+      - docs/BACKLOG_V2.md
+      - docs/PLG_EXECUTION_PLAN.md
+      - docs/TPM_FIRST_WEEK_PLAN.md
+    docs:
+      - docs/product/PRD_STELLER_V2_STABILIZATION_AND_GROWTH.md
+      - docs/product/AGENCY_NETWORK_PRODUCT_BRIEF.md
+      - docs/product/CATALOG_SYNC_FIX_PROPOSAL.md
+      - docs/product/
+      - docs/BACKLOG_V2.md
+      - docs/PLG_EXECUTION_PLAN.md
+      - docs/TPM_FIRST_WEEK_PLAN.md
+    write_to: "docs/product/ or docs/ (Use prefix PROPOSAL_ or PRD_)"
+
+  planning:
+    description: Active feature and deployment plans.
+    read:
+      - .cursor/plans/plans_index.md
+      - .cursor/plans/
+    docs:
+      - .cursor/plans/plans_index.md
+    write_to: .cursor/plans/ (add new plan; update plans_index.md with new row)
+
+  developer:
+    description: API integration and developer experience. Canonical API contracts and self-service signup.
+    docs:
+      - docs/RUN_MIGRATIONS.md
+      - docs/RUNNING_API_TESTS.md
+      - docs/PLG_EXECUTION_PLAN.md
+      - docs/architecture/atlas/apis.yaml
+      - docs/architecture/blueprints/security-auth.md
+      - docs/integration/
+    canonical_sources:
+      - "API contracts: docs/architecture/atlas/apis.yaml"
+      - "Public signup: POST /api/public/signup (no auth)"
+    write_to: docs/architecture/atlas/apis.yaml (new endpoints); docs/integration/ for guides.
+
+  ops_agent:
+    description: Incident response and system recovery.
+    read:
+      - docs/incidents/
+      - docs/runbooks/
+    docs:
+      - docs/incidents/
+      - docs/runbooks/
+    write_to: "docs/incidents/ (Use INCIDENT_YYYYMMDD_name.md); docs/runbooks/ for procedures."
+
+# Quick Reference
+# - Read: Pick role -> load docs/read list for that role
+# - Write: Match task to zones.write_when -> use zones.path; update role read list if adding persistent reference
+# - Prefixes for docs/ root: ADR_, INCIDENT_, PROPOSAL_, AUDIT_, REPORT_
