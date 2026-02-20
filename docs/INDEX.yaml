@@ -1,6 +1,18 @@
 # Documentation Index & Governance Map
 # Purpose: Single entry point for Agents/Humans to locate (Read) and contribute (Write) knowledge.
-# Last Updated: 2026-02-17
+# Last Updated: 2026-02-20
+
+# -----------------------------------------------------------------------------
+# Repositories (single source for "latest version")
+# -----------------------------------------------------------------------------
+repos:
+  backend:
+    url: https://github.com/manni17/steller-backend
+    description: ".NET API, EF, Hangfire, Bamboo integration, tests. Clone path e.g. /opt/steller-v2/steller-backend."
+  ops:
+    url: https://github.com/manni17/steller-v2-ops
+    description: "Deploy (docker-compose, scripts) + this docs tree (BACKLOG_V2, INDEX, qa, architecture, product)."
+# When in doubt: backend = application code; ops = deploy + docs. This INDEX lives in ops repo under docs/.
 
 # -----------------------------------------------------------------------------
 # Start: Pick your role in the "roles:" section below. Load that role's "docs:" list first.

@@ -23,9 +23,9 @@
 
 ## 2. What we’re doing today
 
-- **Code location:** `/opt/steller-v2` (backend, Docker, etc.); docs in `/root/docs`.
-- **Version control:** **None.** There is **no `.git`** under `/opt/steller-v2` or `/root`. The tree was likely deployed/copied without git or the repo was never initialized/cloned.
-- **Consequence:** No history, no backup to GitHub, no PRs, no CI triggered by pushes. All recent work (e.g. Bamboo catalog v2, backlog updates) exists only on disk.
+- **Backend:** In Git at `/opt/steller-v2/steller-backend`; remote **https://github.com/manni17/steller-backend**. Pushed; main has Bamboo catalog v2, referrals, PLG Phase 3-4.
+- **Deploy + docs:** In Git at `/root/steller-v2-ops`; remote **https://github.com/manni17/steller-v2-ops**. Contains docker-compose, scripts, and full docs tree (BACKLOG_V2, INDEX, qa, architecture, product). Pushed.
+- **Single place for latest version:** See `docs/INDEX.yaml` -> `repos:` for the canonical list (backend + ops URLs and descriptions).
 
 ---
 

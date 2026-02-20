@@ -191,3 +191,4 @@
 - **User-flow test report (2026-02-20):** `docs/qa/USER_FLOW_INTEGRATION_TEST_REPORT_20260220.md`
 - **User-flow test run with trails (2026-02-20):** `docs/qa/USER_FLOW_TEST_RUN_REPORT_WITH_TRAILS_20260220.md`
 - **Bamboo catalog v2 (P0):** `steller-backend/docs/BAMBOO_CATALOG_WHY_IT_FAILS.md`; DTOs: `BambooCatalogV2Response.cs`; client: `BambooApiClient.GetCatalogAsync()` pagination.
+- **Repos (latest version):** Backend code → [manni17/steller-backend](https://github.com/manni17/steller-backend). This doc + deploy + INDEX → [manni17/steller-v2-ops](https://github.com/manni17/steller-v2-ops). See `docs/INDEX.yaml` → `repos:` for canonical list.
