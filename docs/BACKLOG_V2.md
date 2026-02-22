@@ -172,6 +172,7 @@
 | B7 | User-flow integration tests | QA Agent | 🟢 Done | 2026-02-20 | — | 8/8 passed. `docs/qa/USER_FLOW_TEST_RUN_REPORT_WITH_TRAILS_20260220.md`. |
 | B12 | **Bamboo full integration** | Dev Agent | 🟢 Done (client) | 2026-02-20 | — | Client: IBambooApiClient + DTOs (Exchange rates, Accounts, Orders list, Transactions, Notification). Optional: expose via APIs; Bamboo webhook handler. `steller-backend/docs/BAMBOO_FULL_INTEGRATION_PLAN.md`. |
 | B13 | **WF-A10/WF-A11 backend** | Dev Agent | 🟢 Done | 2026-02-22 | — | PUT /api/admin/partners/{id}/status (toggle IsActive); POST /api/admin/orders/{id}/retry-webhook (re-enqueue SendWebhookJob); ApiKeyMiddleware rejects inactive partners (403 PARTNER_SUSPENDED). |
+| B14 | **Disaster recovery plan** | Dev Agent | 🟢 Done | 2026-02-22 | — | STELLER_V2_RECOVERY_PLAN.md, ENV_BACKUP_CHECKLIST.md, GITHUB_PUSH_RUNBOOK.md, scripts/backup-steller-v2-db.sh. Rebuild on new VPS; credential + DB backup procedures. |
 
 ---
 
