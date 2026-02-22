@@ -76,7 +76,9 @@ Multi-step API journey tests from the user perspective (partner and admin). See 
 
 ## Related
 
-- **Running API tests:** `docs/RUNNING_API_TESTS.md` — How QA and AI agents run API tests; where credentials come from (DevCredentialsSeeder, `.dev-credentials.json`); example curl commands.
+- **Testing index (single entry):** `docs/qa/TESTING_INDEX.md` — Start here for all testing and QA; links to run instructions, test plan, backend, backlog/GTM.
+- **How to run integration tests:** `docs/qa/QA_INTEGRATION_TEST_RUN_INSTRUCTIONS.md` — Prerequisites, filters, TEST_DB_CONNECTION.
+- **API smoke tests / credentials:** `steller-backend/docs/RUNNING_API_TESTS.md` — DevCredentialsSeeder, `.dev-credentials.json`, curl examples.
 
 ---
 

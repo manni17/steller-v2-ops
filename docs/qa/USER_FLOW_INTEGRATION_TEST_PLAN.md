@@ -53,6 +53,8 @@ var pollJob = _serviceProvider.GetRequiredService<PollBambooOrderJob>();
 await pollJob.ExecuteAsync(orderId);
 ```
 
+**Reusable rule:** All new tests use the existing fixture and TestDataFactory. Add tests to existing test classes (e.g. `UserFlowIntegrationTests`, `WebhookTests`) following the plan; do not create new test projects or duplicate fixtures for the same scope. See `docs/qa/TESTING_INDEX.md`.
+
 ### 2.3 Auth Model
 
 | Flow Type | Auth | Source |
@@ -255,7 +257,35 @@ dotnet test Tests.Integration/Tests.Integration.csproj \
 - **Vendor:** MockBambooClient (no Bamboo credentials)
 - **Jobs:** MockBackgroundJobClient; tests invoke jobs directly for fulfillment flows
 
-### 6.3 CI Integration
+### 6.3 Run and verify (catalog, admin, partner)
+
+To run the user-flow tests locally (including catalog and admin/partner flows), a PostgreSQL instance is required. Example with Docker:
+
+```bash
+# Start Postgres (if not already running)
+docker run -d --name steller-test-pg \
+  -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=StellerTestDB \
+  -p 5433:5432 postgres:16-alpine
+
+# Wait for readiness, then run tests
+export TEST_DB_CONNECTION="Host=localhost;Port=5433;Database=StellerTestDB;Username=postgres;Password=postgres;Pooling=false;"
+cd /path/to/steller-backend
+dotnet test Tests.Integration/Tests.Integration.csproj \
+  --filter "FullyQualifiedName~UserFlowIntegrationTests" --no-build -v n
+```
+
+**Tests that cover catalog and admin/partner (per plan):**
+
+| Test | What it verifies |
+|------|------------------|
+| **UF_P4_Partner_CatalogToOrder_FullJourney** | Partner gets catalog (`GET /api/brand/getCatalog`), places order, receives cards. |
+| **UF_A3_Admin_CreateApiKey_PartnerCanUse** | Admin creates API key for partner; partner uses new key to call catalog successfully. |
+| **UF_A1_Admin_Login_CreditPartnerWallet** | Admin login + credit partner wallet. |
+| **UF_A2_Admin_CancelOrder_PartnerRefunded** | Admin cancels order; partner wallet refunded. |
+
+**Verified (2026-02):** Full suite of 8 user-flow tests passed (Partner: UF-P1–P5; Admin: UF-A1–A3). Catalog is returned to partner (x-api-key) and to partner using admin-created key.
+
+### 6.4 CI Integration
 
 - Add user-flow tests to existing integration test job.
 - Run after service-level tests (P1–P5).
@@ -275,19 +305,50 @@ dotnet test Tests.Integration/Tests.Integration.csproj \
 
 ## 8. Success Criteria
 
-- [ ] All user-flow tests pass with MockBambooClient.
+- [x] All user-flow tests pass with MockBambooClient (8/8 passed when run with local Postgres).
 - [ ] No changes to Steller.Api or Steller.Infrastructure for these tests.
 - [ ] Tests are deterministic (no flakiness from timing).
 - [ ] Documentation updated: `docs/QA_WORKFLOW_DOCUMENTATION_INDEX.md` (add User-Flow Integration Tests section).
 
 ---
 
-## 9. References
+## 9. Determinism
+
+**Goal:** No flakiness from timing; tests are repeatable and deterministic.
+
+### 9.1 Rules
+
+| Rule | Why |
+|------|-----|
+| **No `Thread.Sleep`** | Sleep introduces timing variability; tests may pass or fail depending on load. |
+| **No `DateTime.Now` in assertions** | Use fixed dates or inject `IDateTimeProvider`; avoid time-of-day in test logic. |
+| **Use `MockBambooClient` scenarios** | Vendor responses must be deterministic (e.g. `SetGetOrderDetailsScenario("Succeeded", cardCount: 1)`). |
+| **Run jobs synchronously** | After `POST /api/orders`, resolve `PlaceBambooOrderJob` and `PollBambooOrderJob` and call `ExecuteAsync` directly; do not rely on background scheduler timing. |
+| **Respawn / `ResetDatabaseAsync`** | Each test starts from a known DB state; no cross-test pollution. |
+| **No shared mutable state** | Use `TestDataFactory` and fixture; avoid static or shared variables that change between runs. |
+
+### 9.2 Checklist for New Tests
+
+- [ ] No `Thread.Sleep`, `Task.Delay` (unless strictly required and documented)
+- [ ] Mock vendor (MockBambooClient) returns deterministic responses
+- [ ] Jobs invoked directly via `ExecuteAsync`, not by Hangfire scheduler
+- [ ] DB reset before test or test class
+- [ ] Assertions do not depend on wall-clock time
+
+### 9.3 Reference
+
+Spec index and invariants: [SPEC_INDEX.yaml](SPEC_INDEX.yaml), [INVARIANTS.md](INVARIANTS.md).
+
+---
+
+## 10. References
 
 | Doc | Purpose |
 |-----|---------|
 | `docs/architecture/atlas/apis.yaml` | API endpoints, auth |
 | `docs/QA_WORKFLOW_DOCUMENTATION_INDEX.md` | Workflow docs |
+| `docs/qa/SPEC_INDEX.yaml` | Spec ID → test name, invariant refs |
+| `docs/qa/INVARIANTS.md` | Formal invariants (financial, wallet, idempotency) |
 | `docs/integration/STELLER_INTEGRATION_GUIDE.md` | Partner API contract |
 | `docs/RUNNING_API_TESTS.md` | How to run tests, credentials |
 | `Tests.Integration/AuthTests.cs` | HttpClient + API key pattern |

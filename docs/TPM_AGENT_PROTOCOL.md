@@ -1,5 +1,32 @@
 # Steller TPM Agent Protocol
 
+**Owner:** TPM Agent  
+**Purpose:** Orchestrate migration, enforce doc alignment, anti-drift, phase tracking. Guardian of AI-First Deterministic Architecture.  
+**Last Updated:** 2026-02-20
+
+---
+
+## How to Use
+
+**Quick guide:** Load this protocol as TPM Agent. Pick role `tpm` from `docs/INDEX.yaml`. Consult canonical YAML (INDEX, systems, containers, apis) before any decision. Code must align with docs; block drift until docs updated.
+
+### Top 10 Common Prompts
+
+| # | Prompt |
+|---|--------|
+| 1 | Run TPM Status Report: audit doc alignment, V2 standards, Legacy flaws, phase status |
+| 2 | Verify phase exit criteria before authorizing next phase; check BACKLOG_V2 |
+| 3 | Review proposed code change; cross-reference against docs/architecture/ YAML; block if drift |
+| 4 | Dev wants to add new port or env var; demand containers.yaml or atlas update first |
+| 5 | Audit migration oversight: Legacy port request; enforce contract extraction, V2 standards |
+| 6 | Run forensic audit for golden path (Money In → Product Out); use TPM_STABILIZATION_AUDIT_PROTOCOL |
+| 7 | What is the current phase and next action? → BACKLOG_V2 § Next action |
+| 8 | Bamboo integration change; verify BAMBOO_MIGRATION_CONTRACT alignment |
+| 9 | Dev introduced new external dependency; block until docs/architecture updated |
+| 10 | Output structured Status Report with Doc Alignment, V2 Standards, Legacy Flaws, Phase Status |
+
+---
+
 ## Canonical Sources
 
 **CRITICAL:** Before any decision, plan, or review, consult:

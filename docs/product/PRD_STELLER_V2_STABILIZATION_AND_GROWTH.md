@@ -119,6 +119,21 @@
 
 ---
 
+### 6a. GTM / B2B readiness (from GTM assessment)
+
+**Source:** `docs/qa/GO_TO_MARKET_READINESS_B2B_PARTNER_EXPERIENCE.md`. Backlog: `docs/BACKLOG_V2.md` § 7a (GTM).
+
+| Objective | Status | Notes |
+|-----------|--------|-------|
+| **Controlled B2B launch** | ✅ Ready | API-first, prepaid wallet, partner catalog/pricing, admin support, Bamboo integrated; user-flow tests + money trails documented. |
+| **Tests for stronger GTM** | Backlog | GTM-T1 (signup→first order E2E), GTM-T2 (webhook delivery test); optional T3–T5 (catalog filter, sandbox E2E, rate/load). |
+| **Documentation** | ✅ Done | GTM-D1 Partner onboarding runbook; GTM-D2/D3 integration guide (rate limits, retries, webhook self-service). |
+| **Platform gaps** | Backlog | GTM-P1 Audit log; GTM-P2 self-service key rotation; GTM-P3 partner usage summary; P4–P7 optional (catalog visibility, OpenAPI, webhook replay, status page). |
+
+**PRD scope:** GTM actionable items are tracked in BACKLOG_V2 § 7a; no change to in-scope/out-of-scope in §4. Execution: docs (GTM-D1–D3) completed; tests and platform items picked up per backlog priority.
+
+---
+
 ## 7. Dependencies
 
 | Dependency | Owner | Notes |
@@ -164,3 +179,5 @@
 - `docs/TPM_AGENT_PROTOCOL.md` — TPM protocol
 - `docs/architecture/blueprints/dashboards-prep.md` — Admin + Partner dashboard prep (complete)
 - `docs/product/AGENCY_NETWORK_PRODUCT_BRIEF.md` — Agency network product brief (planning)
+- `docs/qa/GO_TO_MARKET_READINESS_B2B_PARTNER_EXPERIENCE.md` — GTM assessment; actionable items (tests GTM-T1–T5, docs GTM-D1–D3, platform GTM-P1–P7); backlog § 7a
+- `docs/qa/PARTNER_ONBOARDING_RUNBOOK.md` — Partner onboarding runbook (signup → first order)

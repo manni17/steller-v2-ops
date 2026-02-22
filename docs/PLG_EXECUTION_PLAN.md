@@ -1,8 +1,30 @@
 # PLG Execution Plan
 
+**Owner:** Dev Agent / Product  
 **Purpose:** Phased execution plan for Steller v2 Product Lead Growth strategy. Maps PLG plan to actionable steps and tracks progress.  
 **Source:** `.cursor/plans/steller_product_lead_growth_strategy_e28a2ede.plan.md`, `docs/BACKLOG_V2.md`  
 **Last Updated:** 2026-02-20
+
+---
+
+## How to Use
+
+**Quick guide:** Load this plan for PLG execution. Pick role `developer` or `product_strategy` from `docs/INDEX.yaml`. Phase 1–2 complete; Phase 3 (Scale) next. Track referral_program, re_engagement; check dependencies before starting.
+
+### Top 10 Common Prompts
+
+| # | Prompt |
+|---|--------|
+| 1 | What is the current PLG phase and next action? → Phase 3 (Scale); referral_program |
+| 2 | Is Phase 2 exit criteria met? → Check developer_portal, webhooks, multi_user, partner_log_explorer |
+| 3 | Add referral_program; check schema, API scope, and stakeholder alignment |
+| 4 | Implement re_engagement job; define RE_ENGAGEMENT_INACTIVE_DAYS, thresholds |
+| 5 | What PLG dependencies exist? → API logging, admin metrics, sandbox, developer portal |
+| 6 | Map BACKLOG_V2 item to PLG phase; update PLG plan if scope changes |
+| 7 | Verify zero-code TTFV and sandbox are operational |
+| 8 | Check PLG P0 gaps (GAP-001–005) resolved before Phase 2 |
+| 9 | Update PLG Execution Plan when phase item completes |
+| 10 | Link PLG item to apis.yaml and data-flow.md if new endpoint or job |
 
 ---
 

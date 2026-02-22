@@ -25,6 +25,8 @@ repos:
 # 3. Target the designated path
 # 4. Update the relevant role's read list in INDEX.yaml if the new document is a persistent reference
 # -----------------------------------------------------------------------------
+# Zones = where to write by task type (write_when). Role write_to = default output path for that role. Prefer zone path when the task matches a zone's write_when.
+# -----------------------------------------------------------------------------
 
 # Writing Convention: New documents in docs/ root must use a prefix (e.g. ADR_, INCIDENT_, PROPOSAL_, AUDIT_, REPORT_). Prefer subfolders when a zone path exists.
 
@@ -54,14 +56,18 @@ zones:
     read_when: "Executing active feature or deployment roadmaps."
     write_when: "Drafting new initiatives or updating progress states."
 
+# For each role: load the "docs:" list for primary context; treat "read:" as optional extra when the task needs it.
 roles:
   qa:
-    description: QA Agent - Execute grey box end-to-end tests
+    description: Execute tests; follow QA protocol and test plan. Single entry: docs/qa/TESTING_INDEX.md.
     docs:
+      - docs/qa/TESTING_INDEX.md
+      - docs/qa/SPEC_INDEX.yaml
+      - docs/qa/INVARIANTS.md
       - docs/STELLER_QA_AGENT_PROTOCOL_V2.md
       - docs/QA_WORKFLOW_DOCUMENTATION_INDEX.md
       - docs/qa/USER_FLOW_INTEGRATION_TEST_PLAN.md
-      - docs/RUNNING_API_TESTS.md
+      - docs/qa/QA_INTEGRATION_TEST_RUN_INSTRUCTIONS.md
       - docs/BACKLOG_V2.md
       - docs/product/PRD_STELLER_V2_STABILIZATION_AND_GROWTH.md
       - docs/architecture/systems.yaml
@@ -120,12 +126,6 @@ roles:
       - docs/architecture/decisions/adr-*.md
     write_to: docs/architecture/blueprints/security-auth.md or docs/architecture/decisions/.
 
-  decisions:
-    description: Architecture decisions - Why choices were made
-    docs:
-      - docs/architecture/decisions/adr-*.md
-    write_to: docs/architecture/decisions/ (adr-XXX-short-name.md).
-
   glossary:
     description: Terminology and definitions
     docs:
@@ -133,9 +133,11 @@ roles:
     write_to: docs/glossary.md
 
   tpm:
-    description: TPM Agent - Orchestrate migration, enforce doc alignment, anti-drift, phase tracking.
+    description: TPM Agent - Orchestrate migration, enforce doc alignment, anti-drift, phase tracking; audits and stabilization.
     docs:
       - docs/TPM_AGENT_PROTOCOL.md
+      - docs/TPM_STABILIZATION_AUDIT_PROTOCOL.md
+      - docs/incidents/FORENSIC_AUDIT_REPORT_20260218.md
       - docs/PLG_EXECUTION_PLAN.md
       - docs/BACKLOG_V2.md
       - docs/product/PRD_STELLER_V2_STABILIZATION_AND_GROWTH.md
@@ -144,57 +146,37 @@ roles:
       - docs/architecture/containers.yaml
       - docs/architecture/atlas/apis.yaml
       - docs/architecture/blueprints/data-flow.md
-    write_to: docs/BACKLOG_V2.md for phase and backlog updates; docs/architecture/ for YAML changes.
-
-  tpm_stabilization:
-    description: Audit, forensic reporting, and stabilization strategy. Sub-protocol of tpm.
-    docs:
-      - docs/TPM_AGENT_PROTOCOL.md
-      - docs/TPM_STABILIZATION_AUDIT_PROTOCOL.md
-      - docs/incidents/FORENSIC_AUDIT_REPORT_20260218.md
-      - docs/architecture/systems.yaml
-      - docs/architecture/containers.yaml
-      - docs/architecture/atlas/apis.yaml
-      - docs/architecture/blueprints/data-flow.md
     canonical_sources:
       - "Ports and containers: docs/architecture/containers.yaml"
       - "System boundaries: docs/architecture/systems.yaml"
-    write_to: "docs/ (Use prefix AUDIT_ or REPORT_); audits/reports may go in docs/incidents/."
+    write_to: docs/BACKLOG_V2.md for phase and backlog updates; docs/architecture/ for YAML changes; docs/ (prefix AUDIT_ or REPORT_); docs/incidents/ for audits/reports.
 
   integration_engineer:
     description: External vendor parity and sync logic. Bamboo: see BAMBOO_MIGRATION_CONTRACT.md.
-    read:
-      - docs/integration/BAMBOO_MIGRATION_CONTRACT.md
-      - docs/bamboo_doc_extract/
-      - docs/CATALOG_SYNC_LEGACY_VS_V2_INVESTIGATION.md
-      - docs/BAMBOO_ONE_CUSTOMER_AND_SANDBOX_SOURCES.md
     docs:
       - docs/integration/BAMBOO_MIGRATION_CONTRACT.md
+      - docs/bamboo_doc_extract/
       - docs/CATALOG_SYNC_LEGACY_VS_V2_INVESTIGATION.md
       - docs/BAMBOO_ONE_CUSTOMER_AND_SANDBOX_SOURCES.md
-      - docs/bamboo_doc_extract/
     write_to: "docs/integration/ (create if missing) or docs/architecture/blueprints/"
 
   qa_lead:
-    description: Validation strategy and execution reports.
-    read:
-      - docs/STELLER_V2_QA_PLAN.md
-      - docs/qa/
+    description: Validation strategy, QA plans, execution reports. Same entry point as qa: docs/qa/TESTING_INDEX.md.
     docs:
+      - docs/qa/TESTING_INDEX.md
+      - docs/qa/SPEC_INDEX.yaml
+      - docs/qa/INVARIANTS.md
       - docs/STELLER_QA_AGENT_PROTOCOL_V2.md
       - docs/STELLER_V2_QA_PLAN.md
       - docs/STELLER_V2_QMS_PLAN.md
       - docs/qa/
+      - docs/qa/GO_TO_MARKET_READINESS_B2B_PARTNER_EXPERIENCE.md
     write_to: "docs/qa/ for run reports; docs/ for protocol updates."
 
   product_strategy:
     description: Proposals and high-level project direction.
-    read:
-      - docs/product/
-      - docs/BACKLOG_V2.md
-      - docs/PLG_EXECUTION_PLAN.md
-      - docs/TPM_FIRST_WEEK_PLAN.md
     docs:
+      - docs/qa/GO_TO_MARKET_READINESS_B2B_PARTNER_EXPERIENCE.md
       - docs/product/PRD_STELLER_V2_STABILIZATION_AND_GROWTH.md
       - docs/product/AGENCY_NETWORK_PRODUCT_BRIEF.md
       - docs/product/CATALOG_SYNC_FIX_PROPOSAL.md
@@ -206,16 +188,15 @@ roles:
 
   planning:
     description: Active feature and deployment plans.
-    read:
-      - .cursor/plans/plans_index.md
-      - .cursor/plans/
     docs:
       - .cursor/plans/plans_index.md
+      - .cursor/plans/
     write_to: .cursor/plans/ (add new plan; update plans_index.md with new row)
 
   developer:
-    description: API integration and developer experience. Canonical API contracts and self-service signup.
+    description: API integration and developer experience. Single entry: docs/dev/DEVELOPMENT_INDEX.md.
     docs:
+      - docs/dev/DEVELOPMENT_INDEX.md
       - docs/RUN_MIGRATIONS.md
       - docs/RUNNING_API_TESTS.md
       - docs/PLG_EXECUTION_PLAN.md
@@ -225,13 +206,11 @@ roles:
     canonical_sources:
       - "API contracts: docs/architecture/atlas/apis.yaml"
       - "Public signup: POST /api/public/signup (no auth)"
+      - "For backend code changes: /opt/steller-v2/steller-backend/AGENTS.md"
     write_to: docs/architecture/atlas/apis.yaml (new endpoints); docs/integration/ for guides.
 
   ops_agent:
     description: Incident response and system recovery.
-    read:
-      - docs/incidents/
-      - docs/runbooks/
     docs:
       - docs/incidents/
       - docs/runbooks/

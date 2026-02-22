@@ -1,0 +1,125 @@
+# Spec Index — Traceability: Spec ID → Test Name → Invariant Refs
+# Purpose: Machine-checkable linkage between flow specs, tests, and invariants.
+# Source: USER_FLOW_INTEGRATION_TEST_PLAN.md, OrderServiceTests, UserFlowIntegrationTests, etc.
+# Last Updated: 2026-02-20
+
+flow_specs:
+  # Partner user flows (UF-P1 through UF-P5)
+  UF-P1:
+    test: UserFlowIntegrationTests.UF_P1_Partner_CreateOrder_ReceivesGiftCard
+    invariant_refs: [INV-WALLET-BALANCE, INV-DEBIT-ATOMICITY]
+
+  UF-P2:
+    test: UserFlowIntegrationTests.UF_P2_Partner_WalletDeductionAfterOrder
+    invariant_refs: [INV-WALLET-BALANCE, INV-DEBIT-ATOMICITY]
+
+  UF-P3:
+    test: UserFlowIntegrationTests.UF_P3_Partner_Idempotency_NoDoubleCharge
+    invariant_refs: [INV-IDEMPOTENCY, INV-WALLET-BALANCE]
+
+  UF-P4:
+    test: UserFlowIntegrationTests.UF_P4_Partner_CatalogToOrder_FullJourney
+    invariant_refs: [INV-WALLET-BALANCE, INV-DEBIT-ATOMICITY]
+
+  UF-P5:
+    test: UserFlowIntegrationTests.UF_P5_Partner_InsufficientFunds_OrderRejected
+    invariant_refs: [INV-NO-PARTIAL-DEBIT]
+
+  # Admin user flows (UF-A1 through UF-A3)
+  UF-A1:
+    test: UserFlowIntegrationTests.UF_A1_Admin_Login_CreditPartnerWallet
+    invariant_refs: [INV-WALLET-BALANCE, INV-CREDIT-ATOMICITY]
+
+  UF-A2:
+    test: UserFlowIntegrationTests.UF_A2_Admin_CancelOrder_PartnerRefunded
+    invariant_refs: [INV-WALLET-BALANCE, INV-REFUND-ATOMICITY]
+
+  UF-A3:
+    test: UserFlowIntegrationTests.UF_A3_Admin_CreateApiKey_PartnerCanUse
+    invariant_refs: []
+
+  # GTM tests
+  GTM-T1:
+    test: UserFlowIntegrationTests.GTM_T1_E2E_PublicSignup_AdminFunds_PartnerCatalog_PlaceOrder_Completed
+    invariant_refs: [INV-WALLET-BALANCE, INV-DEBIT-ATOMICITY]
+
+  GTM-T2:
+    test: WebhookTests.GTM_T2_SendWebhookJob_SendsPostWithValidHmac
+    invariant_refs: []
+
+# Financial / service-level tests (P1, P2) — enforce invariants
+invariant_enforcers:
+  # P1: Financial invariants
+  P1_01:
+    test: OrderServiceTests.P1_01_CreateOrder_DebitsWalletAtomically
+    invariant_refs: [INV-DEBIT-ATOMICITY, INV-WALLET-BALANCE]
+
+  P1_02:
+    test: OrderServiceTests.P1_02_InsufficientFunds_Rejects
+    invariant_refs: [INV-NO-PARTIAL-DEBIT]
+
+  P1_03:
+    test: OrderServiceTests.P1_03_VendorReject_OrderFailedAndWalletRefunded
+    invariant_refs: [INV-REFUND-ATOMICITY, INV-WALLET-BALANCE]
+
+  P1_04:
+    test: OrderServiceTests.P1_04_MarkFailedAndRefund_DoubleRefundGuard
+    invariant_refs: [INV-NO-DOUBLE-REFUND]
+
+  P1_05:
+    test: OrderServiceTests.P1_05_Idempotency_DuplicateReferenceId_ReturnsSameOrder
+    invariant_refs: [INV-IDEMPOTENCY]
+
+  P1_06:
+    test: OrderServiceTests.P1_06_ConcurrentDuplicate_SingleDebit
+    invariant_refs: [INV-IDEMPOTENCY, INV-NO-PARTIAL-DEBIT]
+
+  # P2: Order flow
+  P2_01:
+    test: OrderServiceTests.P2_01_PlaceBambooOrderJob_OrderNotFound_Skips
+    invariant_refs: []
+
+  P2_02:
+    test: OrderServiceTests.P2_02_PlaceBambooOrderJob_Success_EnqueuesPoll
+    invariant_refs: []
+
+  P2_03:
+    test: OrderServiceTests.P2_03_PlaceBambooOrderJob_Failure_MarkFailedAndRefund
+    invariant_refs: [INV-REFUND-ATOMICITY]
+
+  P2_04:
+    test: OrderServiceTests.P2_04_PollBambooOrderJob_Succeeded_SavesCardsAndMarksCompleted
+    invariant_refs: []
+
+  P2_05:
+    test: OrderServiceTests.P2_05_PollBambooOrderJob_Failed_MarkFailedAndRefund
+    invariant_refs: [INV-REFUND-ATOMICITY]
+
+  P2_06:
+    test: OrderServiceTests.P2_06_PollBambooOrderJob_Pending_ThrowsForRetry
+    invariant_refs: []
+
+  P2_07:
+    test: OrderServiceTests.P2_07_PollBambooOrderJob_PartialFulfillment_Refunds
+    invariant_refs: [INV-REFUND-ATOMICITY]
+
+  P2_08:
+    test: OrderServiceTests.P2_08_E2E_HappyPath_OrderCompletedWithCards
+    invariant_refs: [INV-WALLET-BALANCE, INV-DEBIT-ATOMICITY]
+
+  # T_xx: Critical 4
+  T_01:
+    test: OrderServiceTests.T_01_Atomic_Rollback_Test
+    invariant_refs: [INV-NO-PARTIAL-DEBIT, INV-DEBIT-ATOMICITY]
+
+  T_02:
+    test: OrderServiceTests.T_02_Profit_Guard_Test
+    invariant_refs: [INV-PROFIT-GUARD]
+
+  T_03:
+    test: OrderServiceTests.T_03_Idempotency_Test
+    invariant_refs: [INV-IDEMPOTENCY]
+
+  T_04:
+    test: WalletServiceTests.T_04_Concurrency_Test
+    invariant_refs: [INV-WALLET-BALANCE, INV-CREDIT-ATOMICITY, INV-DEBIT-ATOMICITY]

@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+*.bak
+.dev-credentials.json
+Logs/
+*.log
+tmp/
+temp/
