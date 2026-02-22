@@ -1,7 +1,7 @@
 # Steller V2 Backlog
 
 **Status:** Canonical Source of Truth for Project Momentum  
-**Last Updated:** 2026-02-21  
+**Last Updated:** 2026-02-22  
 **PRD:** `docs/product/PRD_STELLER_V2_STABILIZATION_AND_GROWTH.md`  
 **Execution Plan:** `docs/PLG_EXECUTION_PLAN.md`
 
@@ -171,6 +171,7 @@
 | B4 | PRICING_LEGACY_VS_V2 investigation | QA Agent | 🟢 Done | 2026-02-19 | — | PRICING_LEGACY_VS_V2_INVESTIGATION.md; workflow index #11. |
 | B7 | User-flow integration tests | QA Agent | 🟢 Done | 2026-02-20 | — | 8/8 passed. `docs/qa/USER_FLOW_TEST_RUN_REPORT_WITH_TRAILS_20260220.md`. |
 | B12 | **Bamboo full integration** | Dev Agent | 🟢 Done (client) | 2026-02-20 | — | Client: IBambooApiClient + DTOs (Exchange rates, Accounts, Orders list, Transactions, Notification). Optional: expose via APIs; Bamboo webhook handler. `steller-backend/docs/BAMBOO_FULL_INTEGRATION_PLAN.md`. |
+| B13 | **WF-A10/WF-A11 backend** | Dev Agent | 🟢 Done | 2026-02-22 | — | PUT /api/admin/partners/{id}/status (toggle IsActive); POST /api/admin/orders/{id}/retry-webhook (re-enqueue SendWebhookJob); ApiKeyMiddleware rejects inactive partners (403 PARTNER_SUSPENDED). |
 
 ---
 
