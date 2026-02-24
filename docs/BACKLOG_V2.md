@@ -1,7 +1,7 @@
 # Steller V2 Backlog
 
 **Status:** Canonical Source of Truth for Project Momentum  
-**Last Updated:** 2026-02-22  
+**Last Updated:** 2026-02-24  
 **PRD:** `docs/product/PRD_STELLER_V2_STABILIZATION_AND_GROWTH.md`  
 **Execution Plan:** `docs/PLG_EXECUTION_PLAN.md`
 
@@ -16,14 +16,13 @@
 
 ---
 
-### Next action
+### Next action (Dashboards first; Agency B6/B10/B11 postponed)
 
 | Owner | Task | Reference |
 |-------|------|-----------|
-| **QA Agent** | GTM-T1: E2E test signup → first order | §7a GTM — Done 2026-02-20 (GTM_T1 in UserFlowIntegrationTests) |
-| **QA Agent** | GTM-T2: Webhook delivery test | §7a GTM — Done (existing SendOrderUpdate_WithValidPartnerWebhook) |
-| **Dev Agent** | GTM-P1: Audit log + admin audit API | §7a GTM — Done 2026-02-20 |
-| **Dev Agent** | B5/B6 or B12 optional (expose Bamboo APIs, webhook handler) | §7 Backlog |
+| **Dev Agent** | B8: Steller admin dashboard | §7 Backlog — next |
+| **Dev Agent** | B9: Partner dashboard | §7 — after B8 |
+| **QA Agent** | Gate: System-wide tests (whitebox + blackbox) | §7b — final gate for production |
 
 ---
 
@@ -38,8 +37,8 @@
 ## 1. Project Overview
 
 - **Initiative:** Steller V2 AI-First Migration
-- **Current Active:** Tier 4 COMPLETED (items 17–20). Next: GTM tests (GTM-T1, GTM-T2), audit log (GTM-P1), optional B12 follow-up (expose Bamboo APIs, webhook handler).
-- **Overall Status:** 🟢 Tier 1–4 COMPLETED; User-flow tests 8/8; Bamboo client full integration (Phases A–E) done. Backlog: GTM tests/platform, Agency (B5–B11), B12 optional.
+- **Current Active:** Tier 4 COMPLETED. Next: **Full dashboards (Admin + Partner)** — B8, B9. **Agency (B6, B10, B11) postponed.** Final gate: system-wide tests (§7b).
+- **Overall Status:** 🟢 Tier 1–4 COMPLETED; User-flow tests 8/8; GTM done. Priority: Admin & Partner dashboards; system-wide whitebox + blackbox tests as production gate.
 
 ---
 
@@ -155,30 +154,32 @@
 
 ## 7. Backlog (prioritized when scheduled)
 
-**Agency Network:** See `docs/product/AGENCY_NETWORK_PRODUCT_BRIEF.md`. Order: B5 → B6, then B8–B11. **Done when** = acceptance met.
+**Priority order:** **1. Full dashboards (Admin + Partner)** — B8, B9. **2. System-wide tests (§7b)** — final gate for production. **Agency (B6, B10, B11) postponed.** See `docs/product/AGENCY_NETWORK_PRODUCT_BRIEF.md`. **Done when** = acceptance met.
 
 | # | Item | Owner | Status | Completed At | Priority | Notes / Done when |
 |---|------|-------|--------|:---:|:---:|-------|
-| B5 | Scrape/remove referral module | Dev Agent | To do | — | P1 (before B6) | **Done when:** Referral schema/APIs/signup flow removed; ADR-008 applied; apis.yaml updated. See ADR-008, apis.yaml referral-code/referrals. |
-| B6 | Prepare for agency dashboards | Dev Agent | To do | — | P1 | **Done when:** Backend/schema/APIs for ParentPartnerId hierarchy, wallet financing, revenue share, financial reporting. No UI; feeds B8–B11. |
-| B8 | Steller admin dashboard | Dev Agent | To do | — | P2 | **Done when:** Admin UI: tree view, metrics, controls, onboarding; configure agent card list; manual credit. Depends on B6. |
-| B9 | Partner dashboard | Dev Agent | To do | — | P2 | **Done when:** Partner (B2B API user) dashboard delivered. |
-| B10 | Agent experience (Telegram) | Dev Agent | To do | — | P2 | **Done when:** Telegram bot: agents join, manage sub-agents, allocate wallets, order from card list; top-up manual. Same codebase as B11, role-based. |
-| B11 | Sub-agent experience (Telegram) | Dev Agent | To do | — | P2 | **Done when:** Telegram bot: sub-agents join via agent link; order from list; own wallet/reports. Same codebase as B10. |
+| B5 | Scrape/remove referral module | Dev Agent | 🟢 Done | 2026-02-21 | — | Referral schema/APIs/signup flow removed; migration RemoveReferralModule; ADR-008 superseded; apis.yaml, components, dependencies updated. |
+| B6 | Prepare for agency dashboards | Dev Agent | Postponed | — | — | **Postponed (agency).** Backend/schema/APIs for ParentPartnerId hierarchy, wallet financing, revenue share. Feeds B10, B11 when resumed. |
+| B8 | Steller admin dashboard | Dev Agent | To do | — | **P1** | **Done when:** Admin UI: partners list, metrics, orders, audit log, manual credit. App: `/root/steller-dashboards` (Vite+React, port 9000). Run: `npm install && npm run dev`. |
+| B9 | Partner dashboard | Dev Agent | To do | — | **P1** | **Done when:** Partner (B2B API user) dashboard delivered. Same app as B8; role-based routing. |
+| B10 | Agent experience (Telegram) | Dev Agent | Postponed | — | — | **Postponed (agency).** Same codebase as B11, role-based. |
+| B11 | Sub-agent experience (Telegram) | Dev Agent | Postponed | — | — | **Postponed (agency).** Same codebase as B10. |
 | B1 | Agent Responsibility Matrix | TPM | To do | — | P2 | **Done when:** Single doc published: what each agent (TPM, QA, Dev) owns. |
 | B2 | QA workflow docs (full set) | QA Agent | 🟢 Done | 2026-02-19 | — | All 8 workflows documented; index workflows 4–10 + #11 Pricing (B4). |
-| B3 | Bede integration planning | TPM | To do | — | P2 | **Done when:** Technical plan or brief for Bede integration (separate initiative). |
+| B3 | Bede integration planning | TPM | 🟢 Done | 2026-02-23 | — | **Done when:** Technical plan or brief for Bede integration. Delivered: `docs/integration/BEDE_INTEGRATION_SPEC.md` (auth, catalog, orders, webhook, IP allowlisting, rate limits, idempotency TTL/200 replay, state machine, Bede ledger rollback); Postman collection `docs/integration/Bede_Steller_Integration.postman_collection.json`. |
 | B4 | PRICING_LEGACY_VS_V2 investigation | QA Agent | 🟢 Done | 2026-02-19 | — | PRICING_LEGACY_VS_V2_INVESTIGATION.md; workflow index #11. |
 | B7 | User-flow integration tests | QA Agent | 🟢 Done | 2026-02-20 | — | 8/8 passed. `docs/qa/USER_FLOW_TEST_RUN_REPORT_WITH_TRAILS_20260220.md`. |
 | B12 | **Bamboo full integration** | Dev Agent | 🟢 Done (client) | 2026-02-20 | — | Client: IBambooApiClient + DTOs (Exchange rates, Accounts, Orders list, Transactions, Notification). Optional: expose via APIs; Bamboo webhook handler. `steller-backend/docs/BAMBOO_FULL_INTEGRATION_PLAN.md`. |
 | B13 | **WF-A10/WF-A11 backend** | Dev Agent | 🟢 Done | 2026-02-22 | — | PUT /api/admin/partners/{id}/status (toggle IsActive); POST /api/admin/orders/{id}/retry-webhook (re-enqueue SendWebhookJob); ApiKeyMiddleware rejects inactive partners (403 PARTNER_SUSPENDED). |
 | B14 | **Disaster recovery plan** | Dev Agent | 🟢 Done | 2026-02-22 | — | STELLER_V2_RECOVERY_PLAN.md, ENV_BACKUP_CHECKLIST.md, GITHUB_PUSH_RUNBOOK.md, scripts/backup-steller-v2-db.sh. Rebuild on new VPS; credential + DB backup procedures. |
+| B15 | **Testing Strategy + Unit layer + CI** | Dev/QA | 🟢 Done | 2026-02-23 | — | Root `TESTING_STRATEGY.md` (execution protocol Unit→Integration→E2E, matrix, commands, prerequisites, failure diagnostics, §6 CI/CD). Backend: `Steller.Tests.Unit` (Category=Unit), `BrandServiceTests` (Phase 5 pricing + N+1 guard). CI: `steller-backend/.github/workflows/dotnet.yml` sequential Unit then Integration; failure blocks merge. |
+| B16 | **Partner catalog: two-state pricing (face value + partner price/discount)** | Dev Agent | 🟢 Done | 2026-02-24 | P1 | **Done when:** Catalog shows face value always; partner price and discount % shown when admin set, masked when not. Backend: `PartnerCatalogResponse` (items + `partnerPricingConfigured`), `ProductDto.DiscountPercent`, `GetPartnerCatalogResponseAsync`; GET /api/catalog (partner) returns it. Dashboard: partner catalog columns Face value, Your price, Discount %; mask + "Request pricing" when not set. Spec: `docs/qa/PARTNER_USER_JOURNEY_TRACE.md` §0. |
 
 ---
 
-## 7a. GTM / B2B readiness (from GO_TO_MARKET_READINESS_B2B_PARTNER_EXPERIENCE.md)
+## 7a. GTM / B2B readiness (prioritized first)
 
-**Source:** `docs/qa/GO_TO_MARKET_READINESS_B2B_PARTNER_EXPERIENCE.md` § Actionable items. PRD: `docs/product/PRD_STELLER_V2_STABILIZATION_AND_GROWTH.md` § 6a.
+**Source:** `docs/qa/GO_TO_MARKET_READINESS_B2B_PARTNER_EXPERIENCE.md`. PRD: `docs/product/PRD_STELLER_V2_STABILIZATION_AND_GROWTH.md` § 6a. **Execute GTM items before Agency (B6–B11).**
 
 ### Tests
 
@@ -186,9 +187,10 @@
 |----|------|-------|--------|:---:|-------|
 | GTM-T1 | E2E: public signup → admin funds → partner getCatalog → place order → completed | QA Agent | Done | P1 | Test uses POST /api/public/signup then admin credit/discount/key; partner getCatalog + POST /api/orders; order completed. No TestDataFactory for partner. |
 | GTM-T2 | Integration test: webhook delivery (order completed/failed, HMAC) | QA Agent | Done | P1 | Test asserts webhook POST sent to partner URL with valid HMAC for order completed or failed. |
-| GTM-T3 | Catalog-filtering test (partner A sees N, partner B sees M products) | QA Agent | To do | Optional | Assert catalog count per partner when PartnerProductPricing differs. |
-| GTM-T4 | Sandbox E2E in CI (Bamboo sandbox + Steller) | Dev Agent | To do | Optional | CI job runs against Bamboo sandbox + Steller; documented. |
-| GTM-T5 | Rate-limit / load test (429, retry-after) | Dev/QA | To do | Optional | Test or doc: Steller/Bamboo rate limits and retry-after behavior. |
+| GTM-T3 | Catalog-filtering test (partner A sees N, partner B sees M products) | QA Agent | 🟢 Done | P2 | GTM_T3_CatalogFiltering; BrandService filters by PartnerProductPricing when partner has PPP; TestDataFactory creates PPP. |
+| GTM-T4 | Sandbox E2E in CI (Bamboo sandbox + Steller) | Dev Agent | 🟢 Done | Optional | docs/qa/SANDBOX_E2E_CI_RUNBOOK.md |
+| GTM-T5 | Rate-limit / load test (429, retry-after) | Dev/QA | 🟢 Done | Optional | docs/RATE_LIMITS_AND_RETRY_AFTER.md |
+| GTM-T6 | Playwright E2E UI tests with API-driven scenario setup | QA Agent | 🟢 Done | P1 | **Done when:** Playwright in steller-dashboards; S-ADMIN-01, S-PARTNER-01 scenarios; API setup (login, sync catalog, signup, credit) before UI assertions. Spec: `docs/qa/API_DRIVEN_E2E_UI_SPEC.md`. |
 
 ### Documentation (executed)
 
@@ -203,12 +205,26 @@
 | ID | Item | Owner | Status | Priority | Done when |
 |----|------|-------|--------|:---:|-------|
 | GTM-P1 | Audit log for admin actions + GET /api/admin/audit-log | Dev Agent | Done | P1 | All sensitive admin actions write to AuditLog; GET /api/admin/audit-log with filters (actor, resource, date). GAP_CLOSURE_PLAN P2. |
-| GTM-P2 | Partner self-service API key rotation | Dev Agent | To do | P2 | Partner can generate new key and revoke old (via API or dashboard) without admin. |
-| GTM-P3 | Partner usage/revenue summary API | Dev Agent | To do | P2 | e.g. GET /api/partner/summary or /stats extended: last 30 days orders count, spend, top products. |
-| GTM-P4 | Catalog visibility: “approved product list” per partner | Product/Dev | To do | Optional | Document or implement: partner sees only products with PartnerProductPricing (or explicit allow list). |
-| GTM-P5 | OpenAPI spec or Postman collection | Dev Agent | To do | Optional | Machine-readable partner API spec or Postman collection published. |
-| GTM-P6 | Webhook replay / last N events API | Dev Agent | To do | Optional | Partner can fetch last N webhook events or replay. |
-| GTM-P7 | Partner-facing status page / SLA | Product/Ops | To do | Optional | Public or partner status page; SLA doc or visibility. |
+| GTM-P2 | Partner self-service API key rotation | Dev Agent | 🟢 Done | P1 | POST /api/partner/keys/rotate; Developer role; audit log. |
+| GTM-P3 | Partner usage/revenue summary API | Dev Agent | 🟢 Done | P1 | GET /api/partner/stats extended: ordersLast30Days, spendLast30Days, topProductsLast30Days. |
+| GTM-P4 | Catalog visibility (approved product list): “approved product list” per partner | Product/Dev | Done | Optional | docs/CATALOG_VISIBILITY_APPROVED_PRODUCTS.md; GTM-T3 (or explicit allow list). |
+| GTM-P5 | OpenAPI spec or Postman collection | Dev Agent | 🟢 Done | Optional | /swagger, Steller_API.postman_collection.json; docs/OPENAPI_AND_POSTMAN.md |
+| GTM-P6 | Webhook replay / last N events API | Dev Agent | 🟢 Done | Optional | GET /api/partner/webhook/events?limit=50 |
+| GTM-P7 | Partner-facing status page / SLA | Product/Ops | 🟢 Done | Optional | docs/SLA_AND_STATUS.md |
+
+---
+
+## 7b. Production Gate — System-wide Tests
+
+**Purpose:** Final gate before production. Must pass before releasing to production.
+
+| ID | Item | Owner | Status | Done when |
+|----|------|-------|--------|-----------|
+| **Gate-1** | **System-wide whitebox + blackbox tests** | QA Agent | To do | **Done when:** Full whitebox (unit/integration) and blackbox (API contract, E2E) suites defined, runnable, and passing. Gate blocks production deploy until all pass. See `docs/qa/TESTING_INDEX.md` § Production Gate. |
+
+**Scope:**
+- **Whitebox:** Unit + integration tests (P1–P5, user-flow, webhook, GTM-T1–T3) — tests that know internals.
+- **Blackbox:** API contract tests, E2E flows (signup→order, catalog, wallet) — tests that treat system as opaque.
 
 ---
 
@@ -232,7 +248,7 @@
 | 2 | PLG Phase 1 + QA P3–P5 | ✅ Done |
 | 3 | PLG Phase 2 + QA docs | ✅ Done |
 | 4 | PLG Phase 3–4 (webhooks, partner_stats, referral, re_engagement) | ✅ Done |
-| — | Next: GTM tests (T1, T2), audit log (P1), backlog B5/B6/B8–B11 | §7, §7a |
+| — | Next: Dashboards B8, B9; Gate §7b. Agency B6/B10/B11 postponed | §7, §7b |
 
 ---
 
@@ -244,6 +260,7 @@
 - **QA Protocol:** `docs/STELLER_QA_AGENT_PROTOCOL_V2.md`
 - **QA Workflow Index:** `docs/QA_WORKFLOW_DOCUMENTATION_INDEX.md`
 - **Phase 4 Report:** `docs/qa/STELLER_QA_RUN_20260219.md`
+- **Dashboard master spec (Admin + Partner + Agent portal):** `docs/product/DASHBOARD_MASTER_SPEC.md`
 - **Dashboard prep (Admin + Partner):** `docs/architecture/blueprints/dashboards-prep.md`
 - **Agency Network (product brief):** `docs/product/AGENCY_NETWORK_PRODUCT_BRIEF.md`
 - **User-flow integration test plan:** `docs/qa/USER_FLOW_INTEGRATION_TEST_PLAN.md`
@@ -252,4 +269,8 @@
 - **Bamboo catalog v2 (P0):** `steller-backend/docs/BAMBOO_CATALOG_WHY_IT_FAILS.md`; DTOs: `BambooCatalogV2Response.cs`; client: `BambooApiClient.GetCatalogAsync()` pagination.
 - **Repos (latest version):** Backend code → [manni17/steller-backend](https://github.com/manni17/steller-backend). This doc + deploy + INDEX → [manni17/steller-v2-ops](https://github.com/manni17/steller-v2-ops). See `docs/INDEX.yaml` → `repos:` for canonical list.
 - **Bamboo full integration plan:** `steller-backend/docs/BAMBOO_FULL_INTEGRATION_PLAN.md` — Phases A–E: Exchange rates, Get Accounts, Orders list, Transactions, Notification (webhook); checklist and refs.
+- **Disaster recovery:** `docs/protocols/STELLER_V2_RECOVERY_PLAN.md` — Rebuild on new VPS; credentials/DB backup; `scripts/backup-steller-v2-db.sh`.
 - **GTM / B2B readiness:** `docs/qa/GO_TO_MARKET_READINESS_B2B_PARTNER_EXPERIENCE.md` — actionable items, tests (GTM-T1–T5), docs (GTM-D1–D3), platform (GTM-P1–P7); runbook: `docs/qa/PARTNER_ONBOARDING_RUNBOOK.md`.
+- **Production gate (system-wide tests):** §7b; `docs/qa/TESTING_INDEX.md` § Production Gate.
+- **Testing Strategy (agents):** Root `TESTING_STRATEGY.md` — execution protocol (Unit→Integration→E2E), execution matrix by domain, deterministic commands, state prerequisites, failure diagnostics, CI/CD enforcement. Backend unit: `Steller.Tests.Unit`; CI: Unit then Integration in `steller-backend/.github/workflows/dotnet.yml`.
+- **Bede (Zain) integration:** `docs/integration/BEDE_INTEGRATION_SPEC.md` — API contract for kickoff (auth, IP allowlisting, rate limits, catalog, orders, idempotency 24h/200 replay, webhook, state machine Pending/Processing/Completed/Failed, Bede ledger rollback on Failed). Executable: `docs/integration/Bede_Steller_Integration.postman_collection.json`.
